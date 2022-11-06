@@ -1,26 +1,25 @@
 // import dependencies
 const inquirer = require("inquirer");
 const cTable = require("console.table");
-const db = require("./db/class");
+const mysql2 = require('mysql2');
 
-const promptUser = () => {
+function userPrompts(){
     inquirer
     .prompt([
         {
         type: "list",
         name: "options",
         message: "What would you like to do?",
-        choices: [
-            "View All Employees",
+        choices: 
+            ["View All Employees",
             "Add Employee",
             "Update Employee Role",
             "View All Roles",
             "Add Role",
             "View All Departments",
             "Add Department",
-            "Quit"
-        ],
-        },
+            "Quit"]
+        }
     ]).then((answers) => {
         switch (answers.options) {
             case "View All Employees":
@@ -56,3 +55,4 @@ const promptUser = () => {
                 break;
         }
     })
+};
