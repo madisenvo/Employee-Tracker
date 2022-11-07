@@ -101,19 +101,11 @@ function addDep(){
             type: 'input',
             name: 'newDep',
             message: "Enter name of new department: ",
-            validate: function (newDep) {
-                if (newDep) {
-                    return true;
-                } else {
-                    console.log('Please enter a department name.');
-                    return false;
-                }
-            }
         }
     ])
         .then((response) => {
             db.query(`INSERT INTO department (department_name)
-            VALUES (?)`, response.newDep, function (err, result) {
+            VALUES (?)`, response.newDep, function (err, response) {
                 if (err) throw err;
                 console.log('Successfully added ' + response.newDep + ' to departments.');
                 viewDeps();
@@ -140,7 +132,7 @@ function addRole(){
         }
       ])
         .then((response) => {
-            db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`, [response.newRole, response.newSalary, response.depID], function (err, res) {
+            db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`, [response.newRole, response.newSalary, response.depID], function (err, response) {
                 if (err) throw err;
                 console.log('Successfully added ' + response.newRole + ' to roles.');
                 viewRoles();
