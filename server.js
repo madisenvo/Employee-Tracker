@@ -99,10 +99,10 @@ function addDep(){
     inquirer.prompt([
         {
             type: 'input',
-            name: 'addDep',
+            name: 'newDep',
             message: "Enter name of new department: ",
-            validate: addDep => {
-                if (addDep) {
+            validate: function (newDep) {
+                if (newDep) {
                     return true;
                 } else {
                     console.log('Please enter a department name.');
@@ -113,16 +113,39 @@ function addDep(){
     ])
         .then((response) => {
             db.query(`INSERT INTO department (department_name)
-            VALUES (?)`, response.addDep, (err, result) => {
+            VALUES (?)`, response.newDep, function (err, result) {
                 if (err) throw err;
-                console.log('Successfully added ' + response.addDep + " to departments.");
+                console.log('Successfully added ' + response.newDep + ' to departments.');
                 viewDeps();
             });
         });
 };
 
 function addRole(){
-
+    inquirer.prompt([
+        {
+          type: 'input',
+          name: 'newRole',
+          message: 'Enter the name of the new role: '
+        },
+        {
+          type: 'input',
+          name: 'newSalary',
+          message: 'Enter the salary for the role: '
+        },
+        {
+          type: 'input',
+          name: 'depID',
+          message: 'Enter the department ID (1 for Operations, 2 for Marketing, 3 for IT, 4 for HR): '
+        }
+      ])
+        .then((response) => {
+            db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`, [response.newRole, response.newSalary, response.depID], function (err, res) {
+                if (err) throw err;
+                console.log('Successfully added ' + response.newRole + ' to roles.');
+                viewRoles();
+            });
+        });
 };
 
 function addEmployee(){
