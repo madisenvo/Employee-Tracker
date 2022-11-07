@@ -96,7 +96,29 @@ function viewEmployees(){
 };
 
 function addDep(){
-
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'addDep',
+            message: "Enter name of new department: ",
+            validate: addDep => {
+                if (addDep) {
+                    return true;
+                } else {
+                    console.log('Please enter a department name.');
+                    return false;
+                }
+            }
+        }
+    ])
+        .then((response) => {
+            db.query(`INSERT INTO department (department_name)
+            VALUES (?)`, response.addDep, (err, result) => {
+                if (err) throw err;
+                console.log('Successfully added ' + response.addDep + " to departments.");
+                viewDeps();
+            });
+        });
 };
 
 function addRole(){
