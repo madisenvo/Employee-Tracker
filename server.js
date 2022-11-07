@@ -1,7 +1,22 @@
 // import dependencies
 const inquirer = require("inquirer");
-const cTable = require("console.table");
 const mysql2 = require('mysql2');
+const cTable = require("console.table");
+const { allowedNodeEnvironmentFlags } = require("process");
+
+//Connection to database
+const db = mysql2.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'business_db'
+});
+db.connect(err => {
+    if(err) throw err;
+    console.log('Connected to the business_db database!');
+    console.log(`Employee Manager`);
+    userPrompts();
+});
 
 function userPrompts(){
     inquirer
@@ -23,36 +38,66 @@ function userPrompts(){
     ]).then((answers) => {
         switch (answers.options) {
             case "View All Employees":
-                // view employees
+                viewEmployees();
                 break;
 
             case "Add Employee":
-                // add employee
+                addEmployee();
                 break;
 
             case "Update Employee Role":
-                // function to update role
+                updateRole();
                 break;
 
             case "View All Roles":
-                // function to view roles
+                viewRoles();
                 break;
 
             case "Add Role":
-                // function to add role
+                addRole();
                 break;
 
             case "View All Departments":
-                // function to view departments
+                viewDeps();
                 break;
 
             case "Add Department":
-                // function to add department
+                addDep();
                 break;
 
             case "Quit":
-                // restart app
+                db.end();
                 break;
         }
     })
 };
+
+function viewEmployees(){
+
+};
+
+function addEmployee(){
+
+};
+
+function updateRole(){
+
+};
+
+function viewRoles(){
+
+};
+
+function addRole(){
+
+};
+
+function viewDeps(){
+
+};
+
+function addDep(){
+
+};
+
+
