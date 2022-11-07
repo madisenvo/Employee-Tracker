@@ -13,11 +13,16 @@ VALUES ("Marketer", 90000, 2),
         ("Manufacturer", 800000, 1),
         ("Purchaser", 800000, 1);
 
+INSERT INTO manager (first_name, last_name, role_id)
+VALUES ("Art","Vandeley", 3),
+        ("Charles","Cheese", 4),
+
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Art","Vandeley", 3, NULL),
+        ("Charles","Cheese", 4, NULL),
         ("Greg","McMuffin", 2, 1),
-        ("Pepe","Sylvia", 1, 7),
-        ("Peg","Legge", 5, 7),
-        ("Saul","Goodman", 5, 7),
-        ("Scoobert","Doo", 2, 1),
-        ("Charles","Cheese", 4, NULL);
+        ("Pepe","Sylvia", 1, 2),
+        ("Peg","Legge", 5, 2),
+        ("Saul","Goodman", 5, 2),
+        ("Scoobert","Doo", 2, 1);
+        
