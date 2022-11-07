@@ -1,7 +1,7 @@
 // import dependencies
-const inquirer = require("inquirer");
+const inquirer = require('inquirer');
 const mysql2 = require('mysql2');
-const cTable = require("console.table");
+const consoleTable = require('console.table');
 const { allowedNodeEnvironmentFlags } = require("process");
 
 //Connection to database
@@ -19,8 +19,7 @@ db.connect(err => {
 });
 
 function userPrompts(){
-    inquirer
-    .prompt([
+    inquirer.prompt([
         {
         type: "list",
         name: "options",
@@ -73,8 +72,11 @@ function userPrompts(){
 };
 
 function viewEmployees(){
-
-};
+    db.query('SELECT department(id) AS id, department.department_name AS department FROM department', function (err, results) {
+        if (err) throw err;
+        consoleTable(results);
+        userPrompts();
+})};
 
 function addEmployee(){
 
