@@ -141,7 +141,40 @@ function addRole(){
 };
 
 function addEmployee(){
-
+    const roles = `SELECT * FROM roles`;
+    const managers = `SELECT * FROM manager`;
+    
+    inquirer.prompt([
+        {
+          type: 'input',
+          name: 'firstName',
+          message: "Enter employee's first name: "
+        },
+        {
+          type: 'input',
+          name: 'lastName',
+          message: "Enter employee's last name: "
+        },
+        {
+          type: 'list',
+          name: 'role',
+          message: "Select the employee's role: ",
+          choices: roles
+        },
+        {
+          type: 'list',
+          name: 'manager',
+          message: "Select the employee's manager: ",
+          choices: managers
+        },
+      ])
+        .then((response) => {
+            db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, [response.firstName, response.lastName, response.role, response.manager], (err, response) => {
+            if (err) throw err;
+            console.log('Successfully added ' + response.firstName + ' ' + response.lastName + ' to employees.');
+            viewEmployees();
+          })
+        })
 };
 
 function updateRole(){

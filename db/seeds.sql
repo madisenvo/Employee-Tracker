@@ -13,10 +13,6 @@ VALUES ("Marketer", 90000, 2),
         ("Manufacturer", 800000, 1),
         ("Purchaser", 800000, 1);
 
-INSERT INTO manager (first_name, last_name, role_id)
-VALUES ("Art","Vandeley", 3),
-        ("Charles","Cheese", 4),
-
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Art","Vandeley", 3, NULL),
         ("Charles","Cheese", 4, NULL),
