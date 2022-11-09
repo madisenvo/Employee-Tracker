@@ -31,6 +31,7 @@ function userPrompts(){
             "Add Role",
             "Add Employee",
             "Update Employee Role",
+            "Update Employee Manager",
             "Quit"]
         }
     ]).then((answers) => {
@@ -63,6 +64,10 @@ function userPrompts(){
                 updateRole();
                 break;
 
+            case "Update Employee Manager":
+                updateManager();
+                break;
+
             case "Quit":
                 db.end();
                 break;
@@ -71,25 +76,25 @@ function userPrompts(){
 };
 
 function viewDeps(){
-    db.query(`SELECT department.id AS id, department.department_name AS department FROM department`, function (err, results) {
+    db.query(`SELECT department.id AS id, department.department_name AS department FROM department`, function (err, response) {
         if (err) throw err;
-        console.table(results);
+        console.table(response);
         userPrompts();
     })
 };
 
 function viewRoles(){
-    db.query(`SELECT roles.id, roles.title, department.department_name AS department FROM roles LEFT JOIN department ON roles.department_id = department.id`, function (err, results) {
+    db.query(`SELECT roles.id, roles.title, department.department_name AS department FROM roles LEFT JOIN department ON roles.department_id = department.id`, function (err, response) {
         if (err) throw err;
-        console.table(results);
+        console.table(response);
         userPrompts();
     })
 };
 
 function viewEmployees(){
-    db.query(`SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.department_name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`, function (err, results) {
+    db.query(`SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.department_name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`, function (err, response) {
         if (err) throw err;
-        console.table(results);
+        console.table(response);
         userPrompts();
     }) 
 };
@@ -127,7 +132,7 @@ function addRole(){
         {
             type: 'input',
             name: 'depID',
-            message: 'Enter the department ID (1 for Operations, 2 for Marketing, 3 for IT, 4 for HR): '
+            message: 'Enter the department ID: '
         }
         ])
         .then((response) => {
@@ -154,10 +159,10 @@ function addEmployee(){
     ]).then(response => {
         const inputArr = [response.firstName, response.lastName]
 
-        db.query(`SELECT roles.id, roles.title FROM roles`, (err, data) => {
+        db.query(`SELECT roles.id, roles.title FROM roles`, (err, response) => {
             if (err) throw err;
 
-            const roles = data.map(({ id, title }) => ({ name: title, value: id }));
+            const roles = response.map(({ id, title }) => ({ name: title, value: id }));
 
 
             inquirer.prompt([
@@ -171,10 +176,10 @@ function addEmployee(){
                 const role = roleSelection.role;
                 inputArr.push(role);
 
-                db.query(`SELECT * FROM employee`, (err, data) => {
+                db.query(`SELECT * FROM employee`, (err, response) => {
                     if (err) throw err;
 
-                    const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+                    const managers = response.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
 
                     inquirer.prompt([
                         {
@@ -202,10 +207,10 @@ function addEmployee(){
 })}
 
 function updateRole(){
-    db.query(`SELECT * FROM employee`, (err, data) => {
+    db.query(`SELECT * FROM employee`, (err, response) => {
         if (err) throw err;
 
-        const employeeList = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' ' + last_name, value: id })); 
+        const employeeList = response.map(({ id, first_name, last_name }) => ({ name: first_name + ' ' + last_name, value: id })); 
 
         inquirer.prompt([
             {
@@ -214,15 +219,15 @@ function updateRole(){
                 message: "Select an employee to update: ",
                 choices: employeeList
             }
-        ]).then(selectedEmp =>{
-            const employee = selectedEmp.name;
+        ]).then(response =>{
+            const employee = response.updateEmp;
             const employeeArr = [];
             employeeArr.push(employee);
 
-            db.query(`SELECT * FROM roles`, (err, data) =>{
+            db.query(`SELECT * FROM roles`, (err, response) =>{
                 if (err) throw err;
 
-                const roleList = data.map(({ id, title }) => ({ name: title, value: id }));
+                const roleList = response.map(({ id, title }) => ({ name: title, value: id }));
 
                 inquirer.prompt([
                     {
@@ -231,15 +236,15 @@ function updateRole(){
                         message: "Select the employee's new role: ",
                         choices: roleList
                     }
-                ]).then(selectedRole => {
-                    const role = selectedRole.role;
+                ]).then(response => {
+                    const role = response.updateRole;
                     employeeArr.push(role);
 
                     let employee = employeeArr[0]
                     employeeArr[0] = role
                     employeeArr[1] = employee
 
-                    db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, employeeArr, (err, result) => {
+                    db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, employeeArr, (err, response) => {
                         if (err) throw err;
                         console.log('Successfully updated employee role.')
 
@@ -252,7 +257,55 @@ function updateRole(){
 };
 
 
+function updateManager(){
+    db.query(`SELECT * FROM employee`, (err, response) => {
+        if (err) throw err;
+        const employeeList = response.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
 
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: "Select an employee to update: ",
+                choices: employeeList
+            }
+        ])
+            .then(response => {
+                const employee = response.employee;
+                const employeeArr = [];
+                employeeArr.push(employee);
+
+                db.query(`SELECT * FROM employee`, (err, response) => {
+                    if (err) throw err;
+                    const managersList = response.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+
+                    inquirer.prompt([
+                        {
+                            type: 'list',
+                            name: 'manager',
+                            message: "Select the employee's new manager: ",
+                            choices: managersList
+                        }
+                    ])
+                        .then(response => {
+                            const manager = response.manager;
+                            employeeArr.push(manager);
+
+                            let employee = employeeArr[0]
+                            employeeArr[0] = manager
+                            employeeArr[1] = employee
+
+                            db.query(`UPDATE employee SET manager_id = ? WHERE id = ?`, employeeArr, (err, response) => {
+                                if (err) throw err;
+                                console.log("Successfully updated manager!");
+
+                                viewEmployees();
+                            });
+                        });
+                });
+            });
+    });
+};
 
 
 
