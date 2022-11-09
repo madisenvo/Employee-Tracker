@@ -111,7 +111,7 @@ function addDep(){
             db.query(`INSERT INTO department (department_name)
             VALUES (?)`, response.newDep, function (err, response) {
                 if (err) throw err;
-                console.log('Successfully added ' + response.newDep + ' to departments.');
+                console.log('Successfully added department!');
                 viewDeps();
             });
         });
@@ -138,7 +138,7 @@ function addRole(){
         .then((response) => {
             db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`, [response.newRole, response.newSalary, response.depID], function (err, response) {
                 if (err) throw err;
-                console.log('Successfully added ' + response.newRole + ' to roles.');
+                console.log('Successfully added role!');
                 viewRoles();
             });
         });
@@ -179,7 +179,7 @@ function addEmployee(){
                 db.query(`SELECT * FROM employee`, (err, response) => {
                     if (err) throw err;
 
-                    const managers = response.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+                    const managers = response.map(({ id, first_name, last_name }) => ({ name: first_name + ' ' + last_name, value: id }));
 
                     inquirer.prompt([
                         {
@@ -196,7 +196,7 @@ function addEmployee(){
                         db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id)
                         VALUES (?, ?, ?, ?)`, inputArr, (err,response) => {
                             if (err) throw err;
-                            console.log("Successfully added employee.")
+                            console.log("Successfully added employee!")
 
                             viewEmployees();
                         })
@@ -246,7 +246,7 @@ function updateRole(){
 
                     db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, employeeArr, (err, response) => {
                         if (err) throw err;
-                        console.log('Successfully updated employee role.')
+                        console.log('Successfully updated employee role!')
 
                         viewEmployees();
                     })
