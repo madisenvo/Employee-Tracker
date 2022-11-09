@@ -2,7 +2,6 @@
 const inquirer = require('inquirer');
 const mysql2 = require('mysql2');
 const consoleTable = require('console.table');
-const { allowedNodeEnvironmentFlags } = require("process");
 
 //Connection to database
 const db = mysql2.createConnection({
@@ -72,25 +71,25 @@ function userPrompts(){
 };
 
 function viewDeps(){
-    connection.query(`SELECT department.id AS id, department.name AS department FROM department`, function (err, rows) {
+    db.query(`SELECT department.id AS id, department.department_name AS department FROM department`, function (err, results) {
         if (err) throw err;
-        consoleTable(results);
+        console.table(results);
         userPrompts();
     })
 };
 
 function viewRoles(){
-    db.query(`SELECT roles.id, roles.title, department.name AS department FROM roles LEFT JOIN department ON roles.department_id = department.id`, function (err, results) {
+    db.query(`SELECT roles.id, roles.title, department.department_name AS department FROM roles LEFT JOIN department ON roles.department_id = department.id`, function (err, results) {
         if (err) throw err;
-        consoleTable(results);
+        console.table(results);
         userPrompts();
     })
 };
 
 function viewEmployees(){
-    db.query(`SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.name AS department, roles.salary, CONCAT(manager.first_name, manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN manager ON employee.manager_id = manager.id`, function (err, results) {
+    db.query(`SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.department_name AS department, roles.salary, CONCAT(manager.first_name, manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN manager ON employee.manager_id = manager.id`, function (err, results) {
         if (err) throw err;
-        consoleTable(results);
+        console.table(results);
         userPrompts();
     }) 
 };
