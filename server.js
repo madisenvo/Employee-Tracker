@@ -87,7 +87,7 @@ function viewRoles(){
 };
 
 function viewEmployees(){
-    db.query(`SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.department_name AS department, roles.salary, CONCAT(manager.first_name, manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN manager ON employee.manager_id = manager.id`, function (err, results) {
+    db.query(`SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.department_name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`, function (err, results) {
         if (err) throw err;
         console.table(results);
         userPrompts();
@@ -176,9 +176,9 @@ function addEmployee(){
         })
 };
 
-function updateRole(){
+// function updateRole(){
 
-};
+// };
 
 
 
