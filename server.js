@@ -115,21 +115,21 @@ function addDep(){
 function addRole(){
     inquirer.prompt([
         {
-          type: 'input',
-          name: 'newRole',
-          message: 'Enter the name of the new role: '
+            type: 'input',
+            name: 'newRole',
+            message: 'Enter the name of the new role: '
         },
         {
-          type: 'input',
-          name: 'newSalary',
-          message: 'Enter the salary for the role: '
+            type: 'input',
+            name: 'newSalary',
+            message: 'Enter the salary for the role: '
         },
         {
-          type: 'input',
-          name: 'depID',
-          message: 'Enter the department ID (1 for Operations, 2 for Marketing, 3 for IT, 4 for HR): '
+            type: 'input',
+            name: 'depID',
+            message: 'Enter the department ID (1 for Operations, 2 for Marketing, 3 for IT, 4 for HR): '
         }
-      ])
+        ])
         .then((response) => {
             db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`, [response.newRole, response.newSalary, response.depID], function (err, response) {
                 if (err) throw err;
@@ -140,45 +140,116 @@ function addRole(){
 };
 
 function addEmployee(){
-    const roles = `SELECT * FROM roles`;
-    const managers = `SELECT * FROM manager`;
-    
     inquirer.prompt([
         {
-          type: 'input',
-          name: 'firstName',
-          message: "Enter employee's first name: "
+            type: 'input',
+            name: 'firstName',
+            message: "Enter employee's first name: "
         },
         {
-          type: 'input',
-          name: 'lastName',
-          message: "Enter employee's last name: "
-        },
-        {
-          type: 'list',
-          name: 'role',
-          message: "Select the employee's role: ",
-          choices: roles
-        },
-        {
-          type: 'list',
-          name: 'manager',
-          message: "Select the employee's manager: ",
-          choices: managers
-        },
-      ])
-        .then((response) => {
-            db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, [response.firstName, response.lastName, response.role, response.manager], (err, response) => {
+            type: 'input',
+            name: 'lastName',
+            message: "Enter employee's last name: "
+        }
+    ]).then(response => {
+        const inputArr = [response.firstName, response.lastName]
+
+        db.query(`SELECT roles.id, roles.title FROM roles`, (err, data) => {
             if (err) throw err;
-            console.log('Successfully added ' + response.firstName + ' ' + response.lastName + ' to employees.');
-            viewEmployees();
-          })
+
+            const roles = data.map(({ id, title }) => ({ name: title, value: id }));
+
+
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: "Select the employee's role: ",
+                    choices: roles
+                }
+            ]).then(roleSelection => {
+                const role = roleSelection.role;
+                inputArr.push(role);
+
+                db.query(`SELECT * FROM employee`, (err, data) => {
+                    if (err) throw err;
+
+                    const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+
+                    inquirer.prompt([
+                        {
+                            type: 'list',
+                            name: 'manager',
+                            message: "Select the employee's manager: ",
+                            choices: managers
+                        }
+                    ]).then(managerSelection => {
+                        const manager = managerSelection.manager;
+
+                        inputArr.push(manager);
+
+                        db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                        VALUES (?, ?, ?, ?)`, inputArr, (err,response) => {
+                            if (err) throw err;
+                            console.log("Successfully added employee.")
+
+                            viewEmployees();
+                        })
+                    })
+                })
+            })
+    })
+})}
+
+function updateRole(){
+    db.query(`SELECT * FROM employee`, (err, data) => {
+        if (err) throw err;
+
+        const employeeList = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' ' + last_name, value: id })); 
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'updateEmp',
+                message: "Select an employee to update: ",
+                choices: employeeList
+            }
+        ]).then(selectedEmp =>{
+            const employee = selectedEmp.name;
+            const employeeArr = [];
+            employeeArr.push(employee);
+
+            db.query(`SELECT * FROM roles`, (err, data) =>{
+                if (err) throw err;
+
+                const roleList = data.map(({ id, title }) => ({ name: title, value: id }));
+
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'updateRole',
+                        message: "Select the employee's new role: ",
+                        choices: roleList
+                    }
+                ]).then(selectedRole => {
+                    const role = selectedRole.role;
+                    employeeArr.push(role);
+
+                    let employee = employeeArr[0]
+                    employeeArr[0] = role
+                    employeeArr[1] = employee
+
+                    db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, employeeArr, (err, result) => {
+                        if (err) throw err;
+                        console.log('Successfully updated employee role.')
+
+                        viewEmployees();
+                    })
+                })
+            });
         })
+    })
 };
-
-// function updateRole(){
-
-// };
 
 
 
