@@ -3,7 +3,7 @@ const inquirer = require('inquirer');
 const mysql2 = require('mysql2');
 const consoleTable = require('console.table');
 
-//Connection to database
+// connection to database
 const db = mysql2.createConnection({
     host: 'localhost',
     user: 'root',
@@ -17,6 +17,7 @@ db.connect(err => {
     userPrompts();
 });
 
+// prompt user for desired action
 function userPrompts(){
     inquirer.prompt([
         {
@@ -75,6 +76,7 @@ function userPrompts(){
     })
 };
 
+//show department names and department ids
 function viewDeps(){
     db.query(`SELECT department.id AS id, department.department_name AS department FROM department`, function (err, response) {
         if (err) throw err;
@@ -83,14 +85,16 @@ function viewDeps(){
     })
 };
 
+// show job title, role id, role salary, and the department that role belongs to
 function viewRoles(){
-    db.query(`SELECT roles.id, roles.title, department.department_name AS department FROM roles LEFT JOIN department ON roles.department_id = department.id`, function (err, response) {
+    db.query(`SELECT roles.id, roles.title, roles.salary, department.department_name AS department FROM roles LEFT JOIN department ON roles.department_id = department.id`, function (err, response) {
         if (err) throw err;
         console.table(response);
         userPrompts();
     })
 };
 
+// show employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 function viewEmployees(){
     db.query(`SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.department_name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`, function (err, response) {
         if (err) throw err;
@@ -99,6 +103,7 @@ function viewEmployees(){
     }) 
 };
 
+// prompt user to enter the name of the department and add department to database
 function addDep(){
     inquirer.prompt([
         {
@@ -117,6 +122,7 @@ function addDep(){
         });
 };
 
+// prompt user to enter the name, salary, and department for the role and add role to database
 function addRole(){
     inquirer.prompt([
         {
@@ -144,6 +150,7 @@ function addRole(){
         });
 };
 
+// prompt user to enter the employee’s first name, last name, role, and manager, and add employee to database
 function addEmployee(){
     inquirer.prompt([
         {
@@ -206,6 +213,7 @@ function addEmployee(){
     })
 })}
 
+// prompt user to select an employee to update and their new role and add to database
 function updateRole(){
     db.query(`SELECT * FROM employee`, (err, response) => {
         if (err) throw err;
@@ -256,7 +264,7 @@ function updateRole(){
     })
 };
 
-
+// prompt user to select an employee and that employee's new manager and add to database
 function updateManager(){
     db.query(`SELECT * FROM employee`, (err, response) => {
         if (err) throw err;
